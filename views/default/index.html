@@ -1,38 +1,63 @@
 {{extend 'layout.html'}}
 {{block header}}
 <center style="background-color: #333; color:white; padding:30px">
-  <h1>/{{=request.application}}/{{=request.controller}}/{{=request.function}}
+  <h1 class="mt-5">🤖 TurismoBot</h1>
+  <p>Información útils sobre lugares turísticos, hospedajes y restaurantes de la Provincia de Tucumán - Argentina.</p>
 </center>
 {{end}}
-{{if 'message' in globals():}}
-<h2>{{=message}}</h2>
-<p class="lead">{{=T('How did you get here?')}}</p>
-<ol>
-  <li>{{=T('You are successfully running web2py')}}</li>
-  <li>{{=XML(T('You visited the url %s', A(request.env.path_info,_href=request.env.path_info)))}}</li>
-  <li>{{=XML(T('Which called the function %s located in the file %s',
-    (A(request.function+'()',_href='#'),
-    A('web2py/applications/%(application)s/controllers/%(controller)s.py' % request,
-    _href=URL('admin','default','peek', args=(request.application,'controllers',request.controller+'.py'))))))}}</li>
-  <li>{{=XML(T('The output of the file is a dictionary that was rendered by the view %s',
-    A('web2py/applications/%(application)s/views/%(controller)s/index.html' % request,
-    _href=URL('admin','default','peek',args=(request.application,'views',request.controller,'index.html')))))}}</li>
-  <li>{{=T('You can modify this application and adapt it to your needs')}}</li>
-</ol>
-<center style="padding:50px">
-  <a class="btn btn-primary" href="{{=URL('admin','default','index', scheme='https')}}">
-    <i class="glyphicon glyphicon-cog"></i>
-    {{=T("admin")}}
-  </a>
-  <a class="btn btn-secondary" href="{{=URL('examples','default','index')}}">{{=T("Online examples")}}</a>
-  <a class="btn btn-secondary" href="http://web2py.com">web2py.com</a>
-  <a class="btn btn-secondary" href="http://web2py.com/book">{{=T('Documentation')}}</a>
-  <a class="btn btn-secondary" href="{{=URL('default','api_get_user_email')}}">{{=T('API Example')}}</a>
-  <a class="btn btn-secondary" href="{{=URL('default','grid/auth_user')}}">{{=T('Grid Example')}}</a>
-  <a class="btn btn-secondary" href="{{=URL('default','wiki')}}">{{=T('Wiki Example')}}</a>
-</center>
-{{elif 'content' in globals():}}
-{{=content}}
-{{else:}}
-{{=BEAUTIFY(response._vars)}}
-{{pass}}
+<div class="row">
+  <div class="col-sm-12 p-3">
+    <center>
+      <div>
+        <img src="{{=URL('static', 'images/qr_turismobot.gif')}}" alt="qr" >
+      </div>
+      <div class="mt-3">
+        <img src="https://storage.googleapis.com/assistant-prod/consumer/public/logos/hey-google-horizontal.svg" alt="hey google" width="20%">
+      </div>
+    </center>
+  </div>
+  <div class="col-sm-12 p-3">
+    <center>
+      <h2>Información turística de Tucumán... al alcance de una conversación 🤳</h2>
+    </center>
+  </div>
+</div>
+<hr>
+<div class="row">
+  <div class="col-sm-6">
+    <div class="card mt-3">
+      <div class="card-body">
+        <h1>🚣</h1>
+        <h5 class="card-title">¿Qué hacer?</h5>
+        <p class="card-text">Encuentre aquí los diferentes Circuitos Turísticos de la provincia.</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6">
+    <div class="card mt-3">
+      <div class="card-body">
+        <h1>🍝</h1>
+        <h5 class="card-title">¿Dónde comer?</h5>
+        <p class="card-text">Nuestra gastronomía a su alcance.</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6">
+    <div class="card mt-3">
+      <div class="card-body">
+        <h1>🛌</h1>
+        <h5 class="card-title">¿Dónde dormir?</h5>
+        <p class="card-text">Alojamientos de nuestra provincia a su disposición.</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6">
+    <div class="card mt-3">
+      <div class="card-body">
+        <h1>🎭</h1>
+        <h5 class="card-title">Eventos Culturales</h5>
+        <p class="card-text">Conozca los eventos destacados en diferentes puntos de la provincia.</p>
+      </div>
+    </div>
+  </div>
+</div>

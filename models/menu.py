@@ -6,7 +6,24 @@
 # ----------------------------------------------------------------------------------------------------------------------
 
 response.menu = [
-    ('Inicio', False, URL('default', 'index'), []),
-    ('Recorrido Turístico', False, URL('default', 'recorrido_turistico'), []),
-    #('Chat', False, URL('default', 'chat'), []),
+    ("Inicio", False, URL("default", "index"), []),
 ]
+
+if auth.user:
+    response.menu.append(
+        (
+        "Módulos",
+        False,
+        False,
+        [
+            (
+                "Recorrido turístico - ¿Qué hacer?",
+                False,
+                URL("default", "recorrido_turistico"),
+            ),
+            ("Hospedaje - ¿Dónde dormir?", False, URL("default", "hospedaje")),
+            ("Restaurante - ¿Dónde comer?", False, URL("default", "restaurante")),
+            ("Eventos", False, URL("default", "eventos")),
+        ],
+    ),
+    )

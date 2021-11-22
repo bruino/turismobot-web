@@ -1,0 +1,11 @@
+{{extend 'layout.html'}}
+<div class="row">
+    <div class="col">
+        <h3>Hoteles</h3>
+        <ul>
+        {{for row in rows:}}
+            <li>{{=row.nombre}}</li>
+        {{pass}}
+        </ul>
+    </div>
+</div>

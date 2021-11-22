@@ -6,8 +6,7 @@
 
 # ---- example index page ----
 def index():
-    response.flash = T("Hello World")
-    return dict(message=T("Welcome to web2py!"))
+    return dict()
 
 
 @auth.requires_login()
@@ -17,46 +16,12 @@ def recorrido_turistico():
     db.lugar_turistico.tipo.represent = lambda id, r: db.tipo_turismo[id].nombre
     db.lugar_turistico.url.represent = lambda id, r: A(r.url)
     db.lugar_turistico.url_gmaps.represent = lambda id, r: A(r.url_gmaps)
-    db.lugar_turistico.vista_previa = Field.Virtual(
-        lambda row: DIV(
-            IMG(
-                _src=URL("default", "download", args=row.lugar_turistico.imagen),
-                _style="height: 100%; width: 100%;",
-            ),
-            DIV(
-                DIV(H6(B(row.lugar_turistico.nombre))),
-                DIV(H6(row.lugar_turistico.descripcion)),
-                DIV(
-                    A(
-                        "Más Info",
-                        _class="btn btn-outline-primary btn-sm btn-block mb-1",
-                    )
-                )
-                if row.lugar_turistico.url is not None
-                else DIV(),
-                DIV(
-                    A(
-                        "Cómo llegar",
-                        _class="btn btn-outline-primary btn-sm btn-block mb-1",
-                    )
-                )
-                if row.lugar_turistico.url_gmaps is not None
-                else DIV(),
-                DIV(A("Llamar", _class="btn btn-outline-primary btn-sm btn-block mb-1"))
-                if row.lugar_turistico.telefono is not None
-                else DIV(),
-                _class="card-body",
-            ),
-            _class="card col-md-4 offset-md-4",
-        )
-    )
 
     fields = [
         db.lugar_turistico.nombre,
         db.lugar_turistico.descripcion,
         db.lugar_turistico.tipo,
         db.lugar_turistico.telefono,
-        db.lugar_turistico.vista_previa,
     ]
 
     form = SQLFORM.smartgrid(
@@ -67,6 +32,40 @@ def recorrido_turistico():
     )
     return dict(form=form)
 
+
+@auth.requires_login()
+def hospedaje():
+    form = SQLFORM.smartgrid(
+        db.hospedaje,
+        breadcrumbs_class="breadcrumb",
+        csv=False,
+    )
+
+    return dict(form=form)
+
+@auth.requires_login()
+def localidad():
+    form = SQLFORM.smartgrid(
+        db.localidad,
+        breadcrumbs_class="breadcrumb",
+        csv=False,
+    )
+
+    return dict(form=form)
+
+@auth.requires_login()
+def restaurante():
+    form = SQLFORM.smartgrid(
+        db.restaurante,
+        breadcrumbs_class="breadcrumb",
+        csv=False,
+    )
+
+    return dict(form=form)
+
+@auth.requires_login()
+def eventos():
+    return dict()
 
 # ---- API (example) -----
 @auth.requires_login()
