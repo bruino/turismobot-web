@@ -223,7 +223,7 @@ def hospedaje_3_ubicacion_aog(req):
     # pip install geocoder --target site-packages/
     # import geocoder
     # g = geocoder.osm([lat,lng], method='reverse')
-    
+
     r = requests.get(f"https://maps.googleapis.com/maps/api/geocode/json?latlng={lat},{lng}&key={configuration.get('google.place')}")
     address = r.json()['results'][0]['formatted_address'].split(',')[0].split(' ', 1)[1]
     
@@ -291,13 +291,24 @@ def restaurantes_2_ubicacion_aog_si(req):
         "coordinates"
     ]["longitude"]
 
-    url = f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?location={lat},{lng}&radius=1000&type=restaurant&key={configuration.get('google.place')}"
+    url = f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?location={lat},{lng}&radius=1500&type=restaurant&key={configuration.get('google.place')}"
     print(url)
     r = requests.get(
         url
     )
 
     messages = list()
+
+    if len(r.json()["results"]) < 5:
+        messages.append(
+            ChoicesResponse(
+                f"{text} \nNo hay restaurantes cerca tuyo ahora", ["Volver al inicio", "Muchas gracias 👌"]
+            ).for_platform(platform)
+        )
+        response = FulfillmentResponse(text)
+        response.set_fulfillment_messages(messages)
+        return response
+
     if platform == "ACTIONS_ON_GOOGLE":
         items = []
         for restaurant in r.json()["results"][:5]: # TODO: resolver cuando no hay lugares a disposición.
@@ -307,10 +318,10 @@ def restaurantes_2_ubicacion_aog_si(req):
                     "openUrlAction": {
                         "url": f"https://www.google.com/maps/search/?api=1&query={restaurant['geometry']['location']['lat']},{restaurant['geometry']['location']['lng']}"
                     },
-                    "description": f"Rating {restaurant['rating']}/5",
+                    "description": f"Rating /5",
                     "footer": restaurant["vicinity"],
                     "image": {
-                        "url": restaurant["icon"],
+                        "url": 'https://e7.pngegg.com/pngimages/554/203/png-clipart-restaurant-computer-icons-food-menu-menu-text-eating.png',
                         "accessibilityText": "alt",
                     },
                 }
@@ -334,29 +345,28 @@ def restaurantes_2_ubicacion_aog_si(req):
                 }
             },
         )
-    else:
-        response_messages = list()
-        for restaurant in r.json()["results"][:5]:    
-            response_messages.append(
-                f'''
-                🍴*{restaurant["name"]}*
-                - Rating {restaurant['rating']}/5
-                - 📍{restaurant["vicinity"]}
-                - Link: https://www.google.com/maps/search/?api=1&query={restaurant['geometry']['location']['lat']},{restaurant['geometry']['location']['lng']}
+    # else:
+    #     response_messages = list()
+    #     for restaurant in r.json()["results"][:5]:    
+    #         response_messages.append(
+    #             f'''
+    #             🍴*{restaurant["name"]}*
+    #             - 📍{restaurant["vicinity"]}
+    #             - Link: https://www.google.com/maps/search/?api=1&query={restaurant['geometry']['location']['lat']},{restaurant['geometry']['location']['lng']}
 
-                '''
-            )
+    #             '''
+    #         )
 
-        messages.append(
-            SimpleResponse(
-                ''.join(response_messages)
-            ).for_platform(platform)
-        )
+    #     messages.append(
+    #         SimpleResponse(
+    #             ''.join(response_messages)
+    #         ).for_platform(platform)
+    #     )
 
     # AÑADIDO
     messages.append(
             ChoicesResponse(
-                f"{text} \n¿Te pareció útil?", ["Volver al inicio", "No, muchas gracias 👌"]
+                f"{text} \n¿Te pareció útil?", ["Volver al inicio", "Muchas gracias 👌"]
             ).for_platform(platform)
         )
     # text = "¿Tenés antojo de algun plato en especial?"
