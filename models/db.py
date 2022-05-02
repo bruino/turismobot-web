@@ -228,7 +228,7 @@ db.define_table(
     Field("url", "string"),
     Field("url_gmaps", "string"),
     Field("telefono", "integer"),
-    Field("imagen", "upload", requires=IS_NOT_EMPTY()),
+    Field("imagen", "upload"),
 )
 db.lugar_turistico.tipo.represent = lambda id, r: db.tipo_turismo[id].nombre or None
 db.lugar_turistico.url.requires = IS_EMPTY_OR(IS_URL())
@@ -251,8 +251,8 @@ db.define_table(
 db.define_table(
     "hospedaje",
     Field("nombre", "string"),
-    Field("tipo_hospedaje", db.tipo_hospedaje),
-    Field("localidad", db.localidad),
+    Field("tipo_hospedaje", db.tipo_hospedaje, represent=lambda id, _: db.tipo_hospedaje[id].nombre, requires=IS_IN_DB(db, 'tipo_hospedaje.id', '%(nombre)s')),
+    Field("localidad", db.localidad, represent=lambda id, _: db.localidad[id].nombre, requires=IS_IN_DB(db, 'localidad.id', '%(nombre)s')),
     Field("latlng", "string", widget=geocoder_widget),
     Field("url", "string"),
     Field("url_gmaps", "string"),

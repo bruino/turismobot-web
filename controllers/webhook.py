@@ -164,8 +164,9 @@ def get_hospedajes(platform, localidad):
 
 def hospedaje_1(req):
     platform = platform_for_request(req)
-    text = "Tenemos muchas opciones interesantes para ofrecerte sobre dónde dormir en la provincia. Seleccioná una opción para conocer más. 📍 Comparte tu ubicación para poder recomendarte opciones cercanas o 🌟 selecciona alguna de las siguientes ciudades para conocer opciones por su valoración."
+    text = "Tenemos muchas opciones interesantes para ofrecerte sobre dónde dormir en la provincia"
     choices = ["📍 Opciones cercanas", "San Miguel de Tucumán", "Tafí del Valle", "Cadillal"]
+    choices += db().select(db.localidad.nombre).to_list()
 
     response = FulfillmentResponse(text)
     response.set_fulfillment_messages(
@@ -195,7 +196,22 @@ def hospedaje_2_ubicacion(req):
 
 def hospedaje_3_ubicacion_aog(req):
     platform = platform_for_request(req)
-    
+    print(req["originalDetectIntentRequest"])
+    if not "device" in req["originalDetectIntentRequest"]["payload"]:
+        text = 'No podemos encontrar hoteles si no disponemos de tu ubicación.'
+        
+        messages = list()
+        messages.append(
+            ChoicesResponse(
+                f"{text}", ["Entendido", "Otras opciones"]
+            ).for_platform(platform)
+        )
+        
+        response = FulfillmentResponse(text)
+        response.set_fulfillment_messages(messages)
+        return response
+
+
     lat = req["originalDetectIntentRequest"]["payload"]["device"]["location"][
         "coordinates"
     ]["latitude"]
@@ -203,12 +219,25 @@ def hospedaje_3_ubicacion_aog(req):
         "coordinates"
     ]["longitude"]
 
+    # print(f'{lat} {lng}')
     # pip install geocoder --target site-packages/
-    import geocoder
-    g = geocoder.osm([lat,lng], method='reverse')
-
-    choices = [g.city]
-    choices.append("Ninguna opción") # Ver accion para éste
+    # import geocoder
+    # g = geocoder.osm([lat,lng], method='reverse')
+    
+    r = requests.get(f"https://maps.googleapis.com/maps/api/geocode/json?latlng={lat},{lng}&key={configuration.get('google.place')}")
+    address = r.json()['results'][0]['formatted_address'].split(',')[0].split(' ', 1)[1]
+    
+    choices = list()
+    if not address:
+        text = "No podemos precisar su localidad."
+        choices.append("Entendido")
+        response = FulfillmentResponse(text)
+        response.set_fulfillment_messages(
+            [
+                ChoicesResponse(text, choices).for_platform(platform),
+            ]
+        )
+    choices = [address, "Ninguna opción"]
 
     text = "¿En qué lugar se desea hospedar?"
     response = FulfillmentResponse(text)
@@ -229,7 +258,7 @@ def hospedaje_4_ubicacion_aog_hospedajes(req):
 
 def restaurantes_1(req):
     platform = platform_for_request(req)
-    text = "Tenemos muchas opciones interesantes para ofrecerte sobre donde cómer en la provincia. Comparte tu ubicación para poder recomendarte opciones cercanas"
+    text = "Comparte tu ubicación para poder recomendarte opciones cercanas para comer"
     response = FulfillmentResponse(text)
     response.set_fulfillment_messages(
         [RequestLocationResponse(text).for_platform(platform)]
@@ -238,12 +267,23 @@ def restaurantes_1(req):
 
 
 def restaurantes_2_ubicacion_aog_si(req):
-    """
-    Funciona, pero no con la version web del test.
-    """
     platform = platform_for_request(req)
-    text = "Éstos restaurantes tienes a tu alrededor."
 
+    if not "device" in req["originalDetectIntentRequest"]["payload"]:
+        text = 'No podemos encontrar restaurantes si no disponemos de tu ubicación.'
+        
+        messages = list()
+        messages.append(
+            ChoicesResponse(
+                f"{text}", ["Entendido", "Otras opciones"]
+            ).for_platform(platform)
+        )
+        
+        response = FulfillmentResponse(text)
+        response.set_fulfillment_messages(messages)
+        return response
+
+    text = "Éstos restaurantes tienes a tu alrededor."
     lat = req["originalDetectIntentRequest"]["payload"]["device"]["location"][
         "coordinates"
     ]["latitude"]
@@ -251,8 +291,10 @@ def restaurantes_2_ubicacion_aog_si(req):
         "coordinates"
     ]["longitude"]
 
+    url = f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?location={lat},{lng}&radius=1000&type=restaurant&key={configuration.get('google.place')}"
+    print(url)
     r = requests.get(
-        f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?location={lat},{lng}&radius=500&type=restaurant&key={configuration.get('google.place')}"
+        url
     )
 
     messages = list()
@@ -413,7 +455,7 @@ DISPATCHER = {
 def endpoint():
     req = request.post_vars
     name_intent = req["queryResult"]["action"]
-
+    print(f"{name_intent}")
     if name_intent not in DISPATCHER:
         return FulfillmentResponse("No lo entiendo mi estimado :/").as_dict()
 
